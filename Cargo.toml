@@ -1,0 +1,18 @@
+[package]
+name = "crash-sim"
+version = "0.1.0"
+edition = "2021"
+authors = ["Manish Tula <MANISHTULA7777@GMAIL.COM>"]
+description = "Deterministic disk fault-injection and chaos-testing harness for write-ahead logs, storage engines, and crash recovery suites."
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/IBEASTMANISH/crash-sim"
+documentation = "https://docs.rs/crash-sim"
+keywords = ["storage", "chaos-testing", "fault-injection", "wal", "testing"]
+categories = ["development-tools::testing", "filesystem"]
+
+[dependencies]
+# Zero external runtime dependencies for maximum compatibility and no_std suitability
+
+[dev-dependencies]
+tempfile = "3.10"
