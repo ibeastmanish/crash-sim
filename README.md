@@ -52,6 +52,7 @@ Developed as a companion testing framework for [`dtn-wal`](https://crates.io/cra
 * **Bit Flip Simulation:** Flips individual bits within buffers at specified error rates to validate CRC32, Adler, and BLAKE3 checksum quarantine logic.
 * **Kernel Page Cache & Power Cut Emulation (`VirtualDisk`):** Separates dirty in-memory buffers from persistent fsynced blocks, allowing instant `crash()` calls that drop un-synced dirty data.
 * **Deterministic Chaos:** Zero external dependencies. Uses an embedded SplitMix64 generator accepting explicit seeds for 100% reproducible debugging.
+* **Real Process Kills (`process::KillCampaign`):** Spawns a real writer process, sends it `SIGKILL` at a seeded random moment, collects the operations it acknowledged, and runs your recovery check. Thousands of trials in a row, reproducible from one seed.
 * **Full Audit Logging:** Detailed trace log captures byte offsets, original values, and corrupted bytes for post-mortem analysis.
 
 ---
@@ -62,7 +63,7 @@ Add `crash-sim` to your `Cargo.toml`:
 
 ```toml
 [dev-dependencies]
-crash-sim = "0.1.0"
+crash-sim = "0.2.0"
 ```
 
 Or via `cargo`:
@@ -134,6 +135,40 @@ fn main() -> std::io::Result<()> {
 }
 ```
 
+### 3. Killing a Real Writer Process with `KillCampaign`
+
+Simulated faults never leave the test process. `KillCampaign` does: each trial spawns your writer,
+kills it with `SIGKILL` after a random delay, and hands you the lines it printed before dying. A
+writer prints a line such as `ACK 17` after operation 17 has committed; your verifier reopens the
+store and checks that every acknowledged operation survived.
+
+```rust
+use std::process::Command;
+use std::time::Duration;
+use crash_sim::process::KillCampaign;
+
+let report = KillCampaign::new(10_000)
+    .seed(7)
+    .kill_window(Duration::from_millis(2), Duration::from_millis(80))
+    .run(
+        |trial| {
+            let mut cmd = Command::new("./target/release/my-writer");
+            cmd.arg(trial.seed.to_string());
+            cmd
+        },
+        |trial, outcome| {
+            // Reopen the store; compare it with the operations in `outcome.acks`.
+            Ok(())
+        },
+    )
+    .expect("a trial failed verification");
+println!("{report}");
+```
+
+Only the direct child is killed, so make the writer a single process (use `exec` in shell
+wrappers). [`dtn-wal`](https://crates.io/crates/dtn-wal) uses this for its 10,000-kill recovery
+campaign (`tests/process_kill.rs`).
+
 ---
 
 ## Testing & Verification
@@ -168,3 +203,4 @@ Dual-licensed under either:
 * MIT License ([LICENSE-MIT](LICENSE-MIT))
 
 at your option.
+

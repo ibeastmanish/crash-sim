@@ -1,9 +1,9 @@
 [package]
 name = "crash-sim"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Manish Tula <MANISHTULA7777@GMAIL.COM>"]
-description = "Deterministic disk fault-injection and chaos-testing harness for write-ahead logs, storage engines, and crash recovery suites."
+description = "Deterministic disk fault injection and real process-kill campaigns for testing write-ahead logs, storage engines and crash recovery."
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/IBEASTMANISH/crash-sim"

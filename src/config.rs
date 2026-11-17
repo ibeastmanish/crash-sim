@@ -71,3 +71,4 @@ impl FaultConfig {
         self
     }
 }
+

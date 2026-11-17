@@ -191,3 +191,4 @@ mod tests {
         assert!(output.iter().any(|&b| b != 0x00));
     }
 }
+

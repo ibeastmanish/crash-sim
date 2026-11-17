@@ -8,6 +8,8 @@
 //! - **Torn Write Simulation:** Cuts off write operations mid-buffer or across sector boundaries.
 //! - **Bit Flip Injection:** Flips isolated bits in payloads to stress-test CRC32 and checksum verification.
 //! - **Power Cut Emulation:** Drops uncommitted dirty pages via `VirtualDisk` to ensure atomic recovery.
+//! - **Real Process Kills:** [`process::KillCampaign`] spawns a real writer process, `SIGKILL`s it at a
+//!   random moment and runs your recovery check, thousands of times in a row.
 //! - **Deterministic Reproducibility:** Zero-dependency pseudo-random generator supports fixed seeds across trial matrices.
 //! - **Zero External Runtime Dependencies:** Lightweight and suitable for high-frequency unit and integration loops.
 //!
@@ -53,6 +55,7 @@
 //! ```
 
 pub mod config;
+pub mod process;
 pub mod prng;
 pub mod record;
 pub mod vfs;
